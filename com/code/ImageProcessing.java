@@ -18,20 +18,25 @@ import java.nio.file.StandardCopyOption;
 
 public class ImageProcessing {
 
-    public static void scale(List<Path> input, String outputPath) throws IOException {
-        ListIterator<Path> directoryIterator = input.listIterator();
-
+    public static void createFolder(String outputPath) throws IOException {
         Path destinationFolder = Paths.get(outputPath);
         try {
             Files.createDirectory(destinationFolder);
             System.out.println("Directory created successfully at: " + destinationFolder.toAbsolutePath());
         } catch (FileAlreadyExistsException e) {
-            // System.out.println("Directory already exists: " +
-            // destinationFolder.toAbsolutePath());
+            System.out.println("Directory already exists: " +
+                    destinationFolder.toAbsolutePath());
         } catch (IOException e) {
             System.err.println("Failed to create directory: " + e.getMessage());
             e.printStackTrace();
         }
+
+    }
+
+    public static void scale(List<Path> input, String outputPath) throws IOException {
+        ListIterator<Path> directoryIterator = input.listIterator();
+
+        Path destinationFolder = Paths.get(outputPath);
 
         while (directoryIterator.hasNext()) {
             Path currentImg = directoryIterator.next();
