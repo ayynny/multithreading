@@ -21,6 +21,7 @@ public class Threading implements Runnable {
             ImageProcessing.scale(
                     java.util.Collections.singletonList(files),
                     outputDir);
+
         } catch (Exception e) {
             System.out.println("Exception is caught");
         }

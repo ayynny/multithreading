@@ -1,7 +1,8 @@
 package com.code;
 
 import java.util.List;
-
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -26,9 +27,13 @@ public class Main {
         // System.out.println( "Example: java imageProcessor sample-images output 3");
         // }
 
-        String inputDir = args[0];
-        String outputDir = args[1];
-        int numThreads = args.length > 2 ? Integer.parseInt(args[2]) : 4;
+        // String inputDir = args[0];
+        // String outputDir = args[1];
+        // int numThreads = args.length > 2 ? Integer.parseInt(args[2]) : 4;
+
+        String inputDir = "./sample-images";
+        String outputDir = "./output";
+        int numThreads = 4;
 
         long start = System.currentTimeMillis();
         DirectoryScanner.scan(inputDir);
@@ -43,29 +48,26 @@ public class Main {
         }
 
         try {
-            // Specify the directory which supposed to be watched
             Path directoryPath = Paths.get(inputDir);
-            // Create a WatchService
             WatchService watchService = directoryPath.getFileSystem().newWatchService();
-
-            // Register the directory for specific events
             directoryPath.register(watchService,
                     StandardWatchEventKinds.ENTRY_CREATE);
 
             System.out.println("Watching directory: " + directoryPath.toAbsolutePath());
 
-            // Infinite loop to continuously watch for events
             while (true) {
                 WatchKey key = watchService.take();
 
                 for (WatchEvent<?> event : key.pollEvents()) {
-                    WatchEvent<Path> ev = (WatchEvent<Path>) event;
-                    Path filename = ev.context().toAbsolutePath();
-                    String f = filename.toString();
+
                     if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
                         System.out.println("File created: " + event.context());
-                        DirectoryScanner.scan((f));
+
+                        DirectoryScanner.scan(inputDir);
+                        imgList = DirectoryScanner.getList();
+
                         if (imgList.size() > 0) {
+                            System.out.println("imgList size is " + imgList.size());
                             for (Path file : imgList) {
                                 executor.submit(new Threading(file, outputDir));
                             }
@@ -78,6 +80,7 @@ public class Main {
             }
 
         } catch (IOException | InterruptedException e) {
+            System.out.println("Caught exeception: ");
             e.printStackTrace();
         }
 
